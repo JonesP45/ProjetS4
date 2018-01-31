@@ -1,5 +1,5 @@
 package jeuDeLaVieTest;
-
+//commentaire en carton
 public class Test {
 
 	public static void main(String[] args) {
@@ -25,7 +25,7 @@ public class Test {
 		System.out.println();
 		System.out.println(list.cloneBis(2,5));
 		//list = list.sort();
-		System.out.println("list triée: " + list.toString());
+		System.out.println("list triï¿½e: " + list.toString());
 	}
 	
 }
