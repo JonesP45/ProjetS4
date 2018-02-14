@@ -2,16 +2,16 @@ package jeuDeLaVieTest;
 
 public class Maillon {
 
-    private Cellule c;
+    private Cellule cellule;
     private Maillon suivant;
 
-    public Maillon(Cellule c) {
-        this.c = c;
+    public Maillon(Cellule cellule) {
+        this.cellule = cellule;
         this.suivant = null;
     }
 
-    public Maillon(Cellule c, Maillon suivant) {
-        this.c = c;
+    public Maillon(Cellule cellule, Maillon suivant) {
+        this.cellule = cellule;
         this.suivant = suivant;
     }
 
@@ -22,23 +22,23 @@ public class Maillon {
         if (!(o instanceof Maillon))
             return false;
         Maillon maillon = (Maillon) o;
-        return getC() == maillon.getC();
+        return cellule == maillon.cellule;
     }
 
     public Maillon clone() {
-        return new Maillon(this.c, this.suivant);
+        return new Maillon(this.cellule, this.suivant);
     }
 
     public String toString() {
-        return c.toString() + "=>";
+        return cellule.toString() + "=>";
     }
 
-    public Cellule getC() {
-        return c;
+    public Cellule getCellule() {
+        return cellule;
     }
 
-    public void setC(Cellule c) {
-        this.c = c;
+    public void setCellule(Cellule cellule) {
+        this.cellule = cellule;
     }
 
     public Maillon getSuivant() {
