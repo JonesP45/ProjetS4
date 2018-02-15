@@ -1,5 +1,5 @@
 package jeuDeLaVieTest;
-//commentaire en carton
+
 public class Test {
 
 	public static void main(String[] args) {
@@ -12,6 +12,15 @@ public class Test {
 		Cellule c6 = new Cellule(8,10);
 		Cellule c7 = new Cellule(-3,4);
 		Cellule c8 = new Cellule(-1,-2);
+
+		Cellule c10 = new Cellule(1,3);
+		Cellule c11 = new Cellule(1,5);
+		Cellule c12 = new Cellule(2,5);
+		Cellule c13 = new Cellule(2,7);
+		Cellule c14 = new Cellule(4,10);
+		Cellule c15 = new Cellule(4,15);
+		Cellule c16 = new Cellule(10,20);
+
 		list.add(c1);
 		list.add(c2);
 		list.add(c8);
@@ -20,12 +29,22 @@ public class Test {
 		list.add(c6);
 		list.add(c7);
 		list.add(c3);
+		list.add(c10);
+		list.add(c11);
+		list.add(c12);
+		list.add(c13);
+		list.add(c14);
+		list.add(c15);
+		list.add(c16);
+
+		System.out.println();
 		System.out.println(list.toString());
 		System.out.println("taille: " + list.size());
 		System.out.println();
-		System.out.println(list.cloneBis(2,5));
-		//list = list.sort();
-		System.out.println("list tri�e: " + list.toString());
+		list = list.sort();
+		System.out.println("list triée: " + list.toString());
+		System.out.println();
+		list.afficher();
 	}
-	
+
 }
