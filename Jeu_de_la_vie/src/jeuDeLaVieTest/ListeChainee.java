@@ -239,6 +239,58 @@ public class ListeChainee {
 	}
     /**/
 
+	public ListeChainee insert(Cellule cellule, ListeChainee liste) {
+		if (liste.getTete() == null)
+			return new ListeChainee(new Maillon(cellule));
+		else if (cellule.compareTo(liste.tete.getCellule()) < 0) {
+			liste.add(cellule);
+			return liste;
+		} else {
+			Cellule CelluleTete = liste.tete.getCellule();//tmp de la tete
+			liste.setTete(liste.tete.getSuivant());//on vire la tete de la liste
+			ListeChainee listRec = insert(cellule, liste);//.add(liste.tete.getCellule());
+			listRec.add(CelluleTete);
+			return listRec;
+		}
+	}
+
+	public ListeChainee merge(ListeChainee l1, ListeChainee l2) {
+		Cellule celluleTete;
+		if (l1.tete == null)
+			return l2;
+		else if (l2.tete == null)
+			return l1;
+		else
+			celluleTete = l1.tete.getCellule();
+		l1.setTete(l1.tete.getSuivant());//on vire la tete de l1
+		return merge(l1, insert(celluleTete, l2));
+	}
+
+	public ListeChainee mergeSort(ListeChainee liste) {
+		if (liste.size() <= 1)
+			return liste;
+		else {
+			int taille = liste.size() / 2;
+			ListeChainee l1 = new ListeChainee();
+			ListeChainee l2 = new ListeChainee();
+			int compteur = 0;
+			Maillon tmp = liste.tete;
+			while (compteur < taille) {
+				l1.add(tmp.getCellule());
+				tmp = tmp.getSuivant();
+				compteur++;
+			}
+			while (tmp != null) {
+				l2.add(tmp.getCellule());
+				tmp = tmp.getSuivant();
+			}
+			System.out.println(l1);
+			System.out.println(l2);
+			System.out.println();
+			return merge(mergeSort(l1), mergeSort(l2));
+		}
+	}
+
 	public boolean bienDanslePlateau(int i, int j, int x, int y) {
 		return x < i && y < j;
 	}
