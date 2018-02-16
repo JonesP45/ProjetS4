@@ -4,6 +4,11 @@ public class Test {
 
 	public static void main(String[] args) {
 		ListeChainee list = new ListeChainee();
+		ListeChainee l1 = new ListeChainee();
+		ListeChainee l2 = new ListeChainee();
+		ListeChainee test;
+
+
 		Cellule c1 = new Cellule(4,7);
 		Cellule c2 = new Cellule(3,8);
 		Cellule c3 = new Cellule(4,6);
@@ -37,14 +42,33 @@ public class Test {
 		list.add(c15);
 		list.add(c16);
 
+		l1.add(c1);
+		l1.add(c2);
+		l1.add(c8);
+		l1.add(c4);
+		l1.add(c5);
+		l1.add(c6);
+		l1.add(c7);
+		l1.add(c3);
+
+		l2.add(c10);
+		l2.add(c11);
+		l2.add(c12);
+		l2.add(c13);
+		l2.add(c14);
+		l2.add(c15);
+		l2.add(c16);
+
 		System.out.println();
 		System.out.println(list.toString());
 		System.out.println("taille: " + list.size());
+		System.out.println(l1.toString());
+		System.out.println("taille1: " + l1.size());
+		System.out.println(l2.toString());
+		System.out.println("taille2: " + l2.size());
 		System.out.println();
-		list = list.sort();
-		System.out.println("list triée: " + list.toString());
-		System.out.println();
-		list.afficher();
+
+		System.out.println(list.mergeSort(list));
 	}
 
 }
