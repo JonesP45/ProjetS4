@@ -1,6 +1,6 @@
 package jeuDeLaVieTest;
 
-public class Cellule implements Comparable<Object>{
+public class Cellule implements Comparable {
 
     private int ligne;
     private int colonne;
@@ -16,23 +16,23 @@ public class Cellule implements Comparable<Object>{
             return true;
         if (!(o instanceof Cellule))
             return false;
-        Cellule cellule = (Cellule) o;
-        return getLigne() == cellule.getLigne() && getColonne() == cellule.getColonne();
+        Cellule Cellule = (Cellule) o;
+        return getLigne() == Cellule.getLigne() && getColonne() == Cellule.getColonne();
     }
 
 //    @Override
 //    public int compareTo(Object o) {
 //        if (!(o instanceof Cellule))
-//            throw new IllegalArgumentException("L'objet en paramètre n'est pas une cellule");
-//        Cellule cellule = (Cellule)o;
-//        if (ligne < cellule.getLigne())
+//            throw new IllegalArgumentException("L'objet en paramètre n'est pas une Cellule");
+//        Cellule Cellule = (Cellule)o;
+//        if (ligne < Cellule.getLigne())
 //            return -1;
-//        else if (ligne > cellule.getLigne())
+//        else if (ligne > Cellule.getLigne())
 //            return 1;
 //        else {
-//            if (colonne > cellule.getColonne())
+//            if (colonne > Cellule.getColonne())
 //                return 1;
-//            else if (colonne < cellule.getColonne())
+//            else if (colonne < Cellule.getColonne())
 //                return -1;
 //            else
 //                return 0;
@@ -42,16 +42,16 @@ public class Cellule implements Comparable<Object>{
     @Override
     public int compareTo(Object o) {
         if (!(o instanceof Cellule))
-            throw new IllegalArgumentException("L'objet en paramètre n'est pas une cellule");
-        Cellule cellule = (Cellule)o;
-        if (ligne > cellule.getLigne())
+            throw new IllegalArgumentException("L'objet en paramètre n'est pas une Cellule");
+        Cellule Cellule = (Cellule)o;
+        if (ligne > Cellule.getLigne())
             return -1;
-        else if (ligne < cellule.getLigne())
+        else if (ligne < Cellule.getLigne())
             return 1;
         else {
-            if (colonne > cellule.getColonne())
+            if (colonne > Cellule.getColonne())
                 return 1;
-            else if (colonne < cellule.getColonne())
+            else if (colonne < Cellule.getColonne())
                 return -1;
         }
         return 0;

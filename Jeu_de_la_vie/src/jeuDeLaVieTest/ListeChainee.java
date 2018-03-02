@@ -1,24 +1,24 @@
 package jeuDeLaVieTest;
 
-public class ListeChainee {
+public class ListeChainee<T extends Comparable> {
 
-	private Maillon tete;
+	private Maillon<T> tete;
 
 	public ListeChainee() {
 		tete = null;
 	}
 
-	public ListeChainee(Maillon tete) {
+	public ListeChainee(Maillon<T> tete) {
 		this.tete = tete;
 	}
 
-	public boolean contains(Cellule cellule) {
+	public boolean contains(T element) {
 		if (tete == null)
 			return false;
 		else {
-			Maillon tmp = tete;
+			Maillon<T> tmp = tete;
 			while (tmp != null) {
-				if (tmp.getCellule().equals(cellule))
+				if (tmp.getElement().equals(element))
 					return true;
 				tmp = tmp.getSuivant();
 			}
@@ -30,7 +30,7 @@ public class ListeChainee {
 		if (tete == null)
 			return 0;
 		else {
-			Maillon tmp = tete;
+			Maillon<T> tmp = tete;
 			int size = 1;
 			while (tmp.getSuivant() != null) {
 				size++;
@@ -40,16 +40,16 @@ public class ListeChainee {
 		}
 	}
 
-	public ListeChainee clone(){
+	public ListeChainee<T> clone(){
 		if (this.tete == null)
-			return new ListeChainee();
+			return new ListeChainee<T>();
 		else {
-			ListeChainee lcClone = new ListeChainee ();
-			lcClone.tete = new Maillon(tete.getCellule());
-			Maillon tmp = tete;
-			Maillon mClone = lcClone.tete;
+			ListeChainee<T> lcClone = new ListeChainee<T>();
+			lcClone.tete = new Maillon<T>(tete.getElement());
+			Maillon<T> tmp = tete;
+			Maillon<T> mClone = lcClone.tete;
 			while (tmp.getSuivant()!= null){
-				Maillon mCloneNext = new Maillon(tmp.getSuivant().getCellule());
+				Maillon<T> mCloneNext = new Maillon<T>(tmp.getSuivant().getElement());
 				mClone.setSuivant(mCloneNext);
 				mClone = mClone.getSuivant();
 				tmp = tmp.getSuivant();
@@ -58,19 +58,19 @@ public class ListeChainee {
 		}
 	}
 
-	public ListeChainee cloneBis(int debut, int fin){
+	public ListeChainee<T> cloneBis(int debut, int fin){
 		if (this.tete == null)
-			return new ListeChainee();
+			return new ListeChainee<T>();
 		else if (debut <= this.size() && fin <= this.size() && debut <= fin && debut >= 1 && fin >= 1){
-			ListeChainee lcClone = new ListeChainee ();
+			ListeChainee<T> lcClone = new ListeChainee<T>();
 			int acc = 1;
-			Maillon tmp = tete;
+			Maillon<T> tmp = tete;
 			while (acc < debut) {
 				tmp = tmp.getSuivant();
 				acc++;
 			}
 			while (acc < fin){
-				lcClone.add(tmp.getCellule());
+				lcClone.add(tmp.getElement());
 				tmp = tmp.getSuivant();
 				acc++;
 			}
@@ -79,38 +79,38 @@ public class ListeChainee {
 		return null;
 	}
 
-	public boolean add(Cellule cellule) {
-		if (!this.contains(cellule)) {
+	public boolean add(T element) {
+		if (!this.contains(element)) {
 			if (tete == null)
-				tete = new Maillon(cellule);
+				tete = new Maillon<T>(element);
 			else {
-				Maillon tmp = tete;
-				tete = new Maillon(cellule, tmp);
+				Maillon<T> tmp = tete;
+				tete = new Maillon<T>(element, tmp);
 			}
 			return true;
 		}
 		return false;
 	}
 
-	public boolean put(Cellule cellule) {
-		if (!this.contains(cellule)) {
+	public boolean put(T element) {
+		if (!this.contains(element)) {
 			if (tete == null)
-				tete = new Maillon(cellule);
+				tete = new Maillon<T>(element);
 			else {
-				Maillon tmp = tete;
-				Maillon tmp2 = tmp;
+				Maillon<T> tmp = tete;
+				Maillon<T> tmp2 = tmp;
 				while (tmp != null) {
-					if (tmp.getCellule().compareTo(cellule) < 0) {
+					if (tmp.getElement().compareTo(element) < 0) {
 						tmp2 = tmp;
 						tmp = tmp.getSuivant();
 						if (tmp == null) {
-							tmp2.setSuivant(new Maillon(cellule, null));
+							tmp2.setSuivant(new Maillon(element, null));
 						}
-					} else if (tmp.getCellule().compareTo(cellule) > 0) {
+					} else if (tmp.getElement().compareTo(element) > 0) {
 						if (tmp.equals(tete)) {
-							tete = new Maillon(cellule, tmp2);
+							tete = new Maillon(element, tmp2);
 						} else
-							tmp2.setSuivant(new Maillon(cellule, tmp));
+							tmp2.setSuivant(new Maillon(element, tmp));
 						return true;
 					}
 				}
@@ -120,22 +120,22 @@ public class ListeChainee {
 		return false;
 	}
 
-	public boolean remove(Cellule cellule) {
-		if (this.contains(cellule)) {
-			if (tete.getCellule().equals(cellule)) {
+	public boolean remove(T element) {
+		if (this.contains(element)) {
+			if (tete.getElement().equals(element)) {
 				tete = tete.getSuivant();
 			} else {
-				Maillon tmp = tete;
+				Maillon<T> tmp = tete;
 				while (tmp != null) {
-					Maillon tmpAv = tmp;
+					Maillon<T> tmpAv = tmp;
 					if (tmp.getSuivant() != null)
 						tmp = tmp.getSuivant();
 					else
 						break;
-					Maillon tmpAp = null;
+					Maillon<T> tmpAp = null;
 					if (tmp.getSuivant() != null)
 						tmpAp = tmp.getSuivant();
-					if (tmp.getCellule().equals(cellule)) {
+					if (tmp.getElement().equals(element)) {
 						tmpAv.setSuivant(tmpAp);
 						return true;
 					}
@@ -145,143 +145,61 @@ public class ListeChainee {
 		return false;
 	}
 
-	public ListeChainee sort() {
+	public ListeChainee<T> sort() {
 		if (this.size() <= 1)
 			return this;
-		ListeChainee res = new ListeChainee();
-		Maillon tmp = tete;
+		ListeChainee<T> res = new ListeChainee<T>();
+		Maillon<T> tmp = tete;
 		while (tmp != null) {
-			res.put(tmp.getCellule());
+			res.put(tmp.getElement());
 			tmp = tmp.getSuivant();
 		}
 		return res;
 	}
 
-	/*A mettre dans la classe jeu*/
-    public String plateau() {
-        int maxHaut = 0, maxBas = 0, maxGauche = 0, maxDroite = 0;
-        Maillon tmp = tete;
-        while (tmp != null) {
-            if (tmp.getCellule().getLigne() < maxBas)
-                maxBas = tmp.getCellule().getLigne();
-            if (tmp.getCellule().getLigne() > maxHaut)
-                maxHaut = tmp.getCellule().getLigne();
-            if (tmp.getCellule().getColonne() < maxGauche)
-                maxGauche = tmp.getCellule().getColonne();
-            if (tmp.getCellule().getColonne() > maxDroite)
-                maxDroite = tmp.getCellule().getColonne();
-            tmp = tmp.getSuivant();
-        }
-        tmp = tete;
-		int ligne = maxHaut;
-		int colonne = maxGauche;
-		int hauteur = Math.abs(maxBas) + Math.abs(maxHaut) +1;
-		int largeur = Math.abs(maxDroite) + Math.abs(maxGauche) + 1;
-		int i = 0, j = 0;
-		Cellule curseur = new Cellule(ligne, colonne);
-		String newLine = System.getProperty("line.separator");
-		String str = "";
-		str += newLine;
-		while (tmp != null) {//on ne se préocupe pas de la fin
-			if (tmp.getCellule().equals(curseur)) {//si le maillon est égual au curseur
-				str += "*"; //plateau.add(1, i, j);//1 dans la case correspondante
-				j++;//on déplace la colonne du plateau
-				if (j < largeur) {//si la colonne du plateau est tjs dans le plateau
-					colonne++;//on met a jour la colonne
-					curseur.setColonne(colonne);//on met a jour le curseur
-				} else {//sinon (si la colonne du plateau n'est pas dans le plateau)
-					i++;//on déplace la ligne du plateau
-					j = 0;//on déplace la colonne du plateau
-					ligne--;//on met a jour la ligne
-					colonne = maxGauche;//on met a jour la colonne
-					curseur = new Cellule(ligne, colonne);//on met à jour le curseur
-					str += newLine;
-				}//finSi
-				tmp = tmp.getSuivant();//on déplace le pointeur de la liste
-			} else {//sinon (si le maillon n'est pas égual au curseur)
-				while (curseur.compareTo(tmp.getCellule()) < 0) {//TQ le curseur est plus petit que le maillon
-					str += "."; //plateau.add(0, i, j);//0 dans la case correspondante
-					j++;//on déplace la colonne du plateau
-					if (j < largeur) {//si la colonne du plateau est tjs dans le plateau
-						colonne++;//on met a jour la colonne
-						curseur.setColonne(colonne);//on met a jour le curseur
-					} else {//sinon (si la colonne du plateau n'est pas dans le plateau)
-						i++;//on déplace la ligne du plateau
-						j = 0;//on déplace la colonne du plateau
-						ligne--;//on met a jour la ligne
-						colonne = maxGauche;//on met a jour la colonne
-						curseur = new Cellule(ligne, colonne);//on met à jour le curseur
-						str += newLine;
-					}//finSi
-				}//finTQ
-			}//FinSi
-		}
-		while (ligne >= maxBas && colonne <= maxDroite) {
-			str += "."; //plateau.add(0, i, j);//0 dans la case correspondante
-			j++;//on déplace la colonne du plateau
-			if (j < largeur) {//si la colonne du plateau est tjs dans le plateau
-				colonne++;//on met a jour la colonne
-				curseur.setColonne(colonne);//on met a jour le curseur
-			} else {//sinon (si la colonne du plateau n'est pas dans le plateau)
-				i++;//on déplace la ligne du plateau
-				j = 0;//on déplace la colonne du plateau
-				ligne--;//on met a jour la ligne
-				colonne = maxGauche;//on met a jour la colonne
-				curseur = new Cellule(ligne, colonne);//on met à jour le curseur
-				str += newLine;
-			}//finSi
-		}
-		return str;
-    }
-
-	public void afficher() {
-		System.out.println(plateau());
-	}
-    /**/
-
-	public ListeChainee insert(Cellule cellule, ListeChainee liste) {
+	public ListeChainee<T> insert(T element, ListeChainee<T> liste) {
 		if (liste.getTete() == null)
-			return new ListeChainee(new Maillon(cellule));
-		else if (cellule.compareTo(liste.tete.getCellule()) < 0) {
-			liste.add(cellule);
+			return new ListeChainee<T>(new Maillon<T>(element));
+		else if (element.compareTo(liste.tete.getElement()) < 0) {
+			liste.add(element);
 			return liste;
 		} else {
-			Cellule CelluleTete = liste.tete.getCellule();//tmp de la tete
+			T elementTete = liste.tete.getElement();//tmp de la tete
 			liste.setTete(liste.tete.getSuivant());//on vire la tete de la liste
-			ListeChainee listRec = insert(cellule, liste);//.add(liste.tete.getCellule());
-			listRec.add(CelluleTete);
+			ListeChainee<T> listRec = insert(element, liste);//.add(liste.tete.getElement());
+			listRec.add(elementTete);
 			return listRec;
 		}
 	}
 
-	public ListeChainee merge(ListeChainee l1, ListeChainee l2) {
-		Cellule celluleTete;
+	public ListeChainee<T> merge(ListeChainee<T> l1, ListeChainee<T> l2) {
+		T elementTete;
 		if (l1.tete == null)
 			return l2;
 		else if (l2.tete == null)
 			return l1;
 		else
-			celluleTete = l1.tete.getCellule();
+			elementTete = l1.tete.getElement();
 		l1.setTete(l1.tete.getSuivant());//on vire la tete de l1
-		return merge(l1, insert(celluleTete, l2));
+		return merge(l1, insert(elementTete, l2));
 	}
 
-	public ListeChainee mergeSort(ListeChainee liste) {
+	public ListeChainee<T> mergeSort(ListeChainee<T> liste) {
 		if (liste.size() <= 1)
 			return liste;
 		else {
 			int taille = liste.size() / 2;
-			ListeChainee l1 = new ListeChainee();
-			ListeChainee l2 = new ListeChainee();
+			ListeChainee<T> l1 = new ListeChainee<T>();
+			ListeChainee<T> l2 = new ListeChainee<T>();
 			int compteur = 0;
-			Maillon tmp = liste.tete;
+			Maillon<T> tmp = liste.tete;
 			while (compteur < taille) {
-				l1.add(tmp.getCellule());
+				l1.add(tmp.getElement());
 				tmp = tmp.getSuivant();
 				compteur++;
 			}
 			while (tmp != null) {
-				l2.add(tmp.getCellule());
+				l2.add(tmp.getElement());
 				tmp = tmp.getSuivant();
 			}
 			System.out.println(l1);
@@ -295,11 +213,11 @@ public class ListeChainee {
 		return x < i && y < j;
 	}
 
-	public ListeChainee concatene(ListeChainee l1, ListeChainee l2) {
+	public ListeChainee concatene(ListeChainee<T> l1, ListeChainee<T> l2) {
 		if (l1.tete == null)
 			return l2;
-		ListeChainee res = l1;
-		Maillon tmp = l1.tete;
+		ListeChainee<T> res = l1;
+		Maillon<T> tmp = l1.tete;
 		while (tmp.getSuivant() != null)
 			tmp = tmp.getSuivant();
 		tmp.setSuivant(l2.tete);
@@ -311,7 +229,7 @@ public class ListeChainee {
 			return "La liste chainée est vide.";
 		else {
 			String str = "";
-			Maillon tmp = tete;
+			Maillon<T> tmp = tete;
 			while (tmp != null) {
 				str += tmp.toString();
 				if (tmp.getSuivant() == null) {
@@ -324,11 +242,11 @@ public class ListeChainee {
 		}
 	}
 
-	public Maillon getTete() {
+	public Maillon<T> getTete() {
 		return tete;
 	}
 
-	public void setTete(Maillon tete) {
+	public void setTete(Maillon<T> tete) {
 		this.tete = tete;
 	}
 

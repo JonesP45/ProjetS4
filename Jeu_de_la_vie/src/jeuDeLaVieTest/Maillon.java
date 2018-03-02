@@ -1,17 +1,17 @@
 package jeuDeLaVieTest;
 
-public class Maillon {
+public class Maillon<T> {
 
-    private Cellule cellule;
-    private Maillon suivant;
+    private T element;
+    private Maillon<T> suivant;
 
-    public Maillon(Cellule cellule) {
-        this.cellule = cellule;
+    public Maillon(T element) {
+        this.element = element;
         this.suivant = null;
     }
 
-    public Maillon(Cellule cellule, Maillon suivant) {
-        this.cellule = cellule;
+    public Maillon(T element, Maillon<T> suivant) {
+        this.element = element;
         this.suivant = suivant;
     }
 
@@ -22,30 +22,30 @@ public class Maillon {
         if (!(o instanceof Maillon))
             return false;
         Maillon maillon = (Maillon) o;
-        return cellule == maillon.cellule;
+        return element == maillon.element;
     }
 
-    public Maillon clone() {
-        return new Maillon(this.cellule, this.suivant);
+    public Maillon<T> clone() {
+        return new Maillon<T>(this.element, this.suivant);
     }
 
     public String toString() {
-        return cellule.toString() + "=>";
+        return element.toString() + "=>";
     }
 
-    public Cellule getCellule() {
-        return cellule;
+    public T getElement() {
+        return element;
     }
 
-    public void setCellule(Cellule cellule) {
-        this.cellule = cellule;
+    public void setElement(T element) {
+        this.element = element;
     }
 
-    public Maillon getSuivant() {
+    public Maillon<T> getSuivant() {
         return suivant;
     }
 
-    public void setSuivant(Maillon suivant) {
+    public void setSuivant(Maillon<T> suivant) {
         this.suivant = suivant;
     }
 
