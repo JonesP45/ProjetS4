@@ -78,7 +78,7 @@ public class Jeu {
         return str;
     }
 
-    public void afficher(ListeChainee<Cellule> liste) {
+    public static void afficher(ListeChainee<Cellule> liste) {
         System.out.println(plateau(liste));
     }
 
