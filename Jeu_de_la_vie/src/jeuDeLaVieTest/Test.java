@@ -3,36 +3,26 @@ package jeuDeLaVieTest;
 public class Test {
 
 	public static void main(String[] args) {
-		ListeChainee<Double> list = new ListeChainee<Double>();
-		ListeChainee<Double> l1 = new ListeChainee<Double>();
-		ListeChainee<Double> l2 = new ListeChainee<Double>();
+		LinkedList<Cell> list = new LinkedList<Cell>();
 
-		Cellule c1 = new Cellule(4,7);
-		Cellule c2 = new Cellule(3,8);
-		Cellule c3 = new Cellule(4,6);
-		Cellule c4 = new Cellule(5,9);
-		Cellule c5 = new Cellule(1,2);
-		Cellule c6 = new Cellule(8,10);
-		Cellule c7 = new Cellule(-3,4);
-		Cellule c8 = new Cellule(-1,-2);
+		Cell c1 = new Cell(4,7);
+		Cell c2 = new Cell(3,8);
+		Cell c3 = new Cell(4,6);
+		Cell c4 = new Cell(5,9);
+		Cell c5 = new Cell(1,2);
+		Cell c6 = new Cell(8,10);
+		Cell c7 = new Cell(-3,4);
+		Cell c8 = new Cell(-1,-2);
 
-		Cellule c10 = new Cellule(1,3);
-		Cellule c11 = new Cellule(1,5);
-		Cellule c12 = new Cellule(2,5);
-		Cellule c13 = new Cellule(2,7);
-		Cellule c14 = new Cellule(4,10);
-		Cellule c15 = new Cellule(4,15);
-		Cellule c16 = new Cellule(10,20);
+		Cell c10 = new Cell(1,3);
+		Cell c11 = new Cell(1,5);
+		Cell c12 = new Cell(2,5);
+		Cell c13 = new Cell(2,7);
+		Cell c14 = new Cell(4,10);
+		Cell c15 = new Cell(4,15);
+		Cell c16 = new Cell(10,20);
 
-		int n = 10;
-		double j;
-		for (int i = 0; i < n; i++) {
-			j = Math.random() * 100;
-			System.out.println(j);
-			System.out.println(list.add(j));
-		}
-
-		/*list.add(c1);
+		list.add(c1);
 		list.add(c2);
 		list.add(c8);
 		list.add(c4);
@@ -41,40 +31,21 @@ public class Test {
 		list.add(c7);
 		list.add(c3);
 		list.add(c10);
-        list.add(c11);
-        list.add(c12);
-        list.add(c13);
-        list.add(c14);
-        list.add(c15);
-        list.add(c16);
-
-        l1.add(c1);
-        l1.add(c2);
-        l1.add(c8);
-        l1.add(c4);
-        l1.add(c5);
-        l1.add(c6);
-        l1.add(c7);
-        l1.add(c3);
-
-        l2.add(c10);
-        l2.add(c11);
-        l2.add(c12);
-        l2.add(c13);
-        l2.add(c14);
-        l2.add(c15);
-        l2.add(c16);*/
+		list.add(c11);
+		list.add(c12);
+		list.add(c13);
+		list.add(c14);
+		list.add(c15);
+		list.add(c16);
 
 		System.out.println();
 		System.out.println(list.toString());
 		System.out.println("taille: " + list.size());
-		System.out.println(l1.toString());
-		System.out.println("taille1: " + l1.size());
-		System.out.println(l2.toString());
-		System.out.println("taille2: " + l2.size());
 		System.out.println();
-
-		System.out.println(list.mergeSort(list));
+		list = list.mergeSort();
+		System.out.println(list);
+		Game.print(list);
+		System.out.println();
 	}
 
 }
