@@ -1,6 +1,6 @@
 package jeuDeLaVieTest;
 
-public class Cell implements Comparable {
+public class Cell implements Comparable<Object> {
 
     private int row;
 

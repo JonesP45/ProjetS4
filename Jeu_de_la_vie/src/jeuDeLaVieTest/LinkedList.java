@@ -1,6 +1,6 @@
 package jeuDeLaVieTest;
 
-public class LinkedList<T extends Comparable> {
+public class LinkedList<T extends Comparable<Object>> {
 
 	private Link<T> head;
 
@@ -12,8 +12,34 @@ public class LinkedList<T extends Comparable> {
 		this.head = head;
 	}
 
-	public boolean contains(T element) {
+	public boolean isEmpty() {
 		if (head == null)
+			return true;
+		return false;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (!(o instanceof LinkedList))
+			return false;
+		LinkedList<?> that = (LinkedList<?>) o;
+		Link<?> tmp1 = this.getHead();
+		Link<?> tmp2 = that.getHead();
+		while ((tmp1 != null) && (tmp2 != null)) {
+			if (!tmp1.equals(tmp2))
+				return false;
+			tmp1 = tmp1.getNext();
+			tmp2 = tmp2.getNext();
+			if ((tmp1 == null) || (tmp2 == null))
+				return false;
+		}
+		return true;
+	}
+
+	public boolean contains(T element) {
+		if (this.isEmpty())
 			return false;
 		else {
 			Link<T> tmp = head;
@@ -27,7 +53,7 @@ public class LinkedList<T extends Comparable> {
 	}
 
 	public int size() {
-		if (head == null)
+		if (this.isEmpty())
 			return 0;
 		else {
 			Link<T> tmp = head;
@@ -40,8 +66,8 @@ public class LinkedList<T extends Comparable> {
 		}
 	}
 
-	public LinkedList<T> clone(){
-		if (this.head == null)
+	public LinkedList<T> clone() {
+		if (this.isEmpty())
 			return new LinkedList<T>();
 		else {
 			LinkedList<T> clonedList = new LinkedList<T>();
@@ -59,7 +85,7 @@ public class LinkedList<T extends Comparable> {
 	}
 
 	public LinkedList<T> cloneBis(int start, int end){
-		if (this.head == null)
+		if (this.isEmpty())
 			return new LinkedList<T>();
 		else if (start <= this.size() && end <= this.size() && start <= end && start >= 1 && end >= 1){
 			LinkedList<T> clonedList = new LinkedList<T>();
@@ -104,13 +130,13 @@ public class LinkedList<T extends Comparable> {
 						tmp2 = tmp;
 						tmp = tmp.getNext();
 						if (tmp == null) {
-							tmp2.setNext(new Link(element, null));
+							tmp2.setNext(new Link<T>(element, null));
 						}
 					} else if (tmp.getElement().compareTo(element) > 0) {
 						if (tmp.equals(head)) {
-							head = new Link(element, tmp2);
+							head = new Link<T>(element, tmp2);
 						} else
-							tmp2.setNext(new Link(element, tmp));
+							tmp2.setNext(new Link<T>(element, tmp));
 						return true;
 					}
 				}
@@ -157,16 +183,16 @@ public class LinkedList<T extends Comparable> {
 		return res;
 	}
 
-	public LinkedList<T> insert(T element, LinkedList<T> list) {
-		if (list.getHead() == null)
+	public LinkedList<T> insert(T element) {
+		if (this.isEmpty())
 			return new LinkedList<T>(new Link<T>(element));
-		else if (element.compareTo(list.head.getElement()) < 0) {
-			list.add(element);
-			return list;
+		else if (element.compareTo(head.getElement()) < 0) {
+			this.add(element);
+			return this;
 		} else {
-			T elementHead = list.head.getElement();//tmp de la head
-			list.setHead(list.head.getNext());//on vire la head de la list
-			LinkedList<T> listRec = insert(element, list);//.add(list.head.getElement());
+			T elementHead = head.getElement();//tmp de la head
+			this.setHead(head.getNext());//on vire la head de la list
+			LinkedList<T> listRec = this.insert(element);//.add(list.head.getElement());
 			listRec.add(elementHead);
 			return listRec;
 		}
@@ -181,7 +207,7 @@ public class LinkedList<T extends Comparable> {
 		else
 			elementHead = l1.head.getElement();
 		l1.setHead(l1.head.getNext());//on vire la head de l1
-		return merge(l1, insert(elementHead, l2));
+		return merge(l1, l2.insert(elementHead));
 	}
 
 	public LinkedList<T> mergeSort() {
@@ -213,12 +239,11 @@ public class LinkedList<T extends Comparable> {
 	public LinkedList<T> concatenate(LinkedList<T> l1, LinkedList<T> l2) {
 		if (l1.head == null)
 			return l2;
-		LinkedList<T> res = l1;
 		Link<T> tmp = l1.head;
 		while (tmp.getNext() != null)
 			tmp = tmp.getNext();
 		tmp.setNext(l2.head);
-		return res;
+		return l1;
 	}
 
 	public String toString() {
