@@ -7,21 +7,33 @@ import java.io.IOException;
 
 public class Game {
 
-    public static void print(LinkedList<Cell> list) {
-        int maxTop = -1000000, maxLow = 1000000, maxLeft = 1000000, maxRight = -1000000;
+    private static boolean circular = true;
+    private static int topTerminal = 10;
+    private static int lowTerminal = -11;
+    private static int leftTerminal = -10;
+    private static int rightTerminal = 11;
+
+    private static void print(LinkedList<Cell> list) {
+        int maxTop = topTerminal, maxLow = lowTerminal, maxLeft = leftTerminal, maxRight = rightTerminal;
         Link<Cell> tmp = list.getHead();
-        while (tmp != null) {
-            if (tmp.getElement().getRow() < maxLow)
-                maxLow = tmp.getElement().getRow();
-            if (tmp.getElement().getRow() > maxTop)
-                maxTop = tmp.getElement().getRow();
-            if (tmp.getElement().getColumn() < maxLeft)
-                maxLeft = tmp.getElement().getColumn();
-            if (tmp.getElement().getColumn() > maxRight)
-                maxRight = tmp.getElement().getColumn();
-            tmp = tmp.getNext();
+        if (topTerminal == 0 && lowTerminal == 0 && leftTerminal == 0 && rightTerminal == 0) {
+            maxTop = -1000000;
+            maxLow = 1000000;
+            maxLeft = 1000000;
+            maxRight = -1000000;
+            while (tmp != null) {
+                if (tmp.getElement().getRow() < maxLow)
+                    maxLow = tmp.getElement().getRow();
+                if (tmp.getElement().getRow() > maxTop)
+                    maxTop = tmp.getElement().getRow();
+                if (tmp.getElement().getColumn() < maxLeft)
+                    maxLeft = tmp.getElement().getColumn();
+                if (tmp.getElement().getColumn() > maxRight)
+                    maxRight = tmp.getElement().getColumn();
+                tmp = tmp.getNext();
+            }
+            tmp = list.getHead();
         }
-        tmp = list.getHead();
         int row = maxTop;
         int column = maxLeft;
         Cell pointer = new Cell(row, column);
@@ -68,87 +80,234 @@ public class Game {
         }
     }
 
-    public static int stateCell(LinkedList<Cell> gameBoard, int x, int y){    //renvoi l'état d'une Cellule sous forme d'entier, 1 si elle est vivante, 0 si elle est morte
-        if (gameBoard.contains(new Cell(x, y)))
-            return 1;
-        return 0;
-    }
-
-    public static int neighbors(LinkedList<Cell> gameBoard, int x, int y){    //Méthode calculant le nombre de vosins vivant d'une Cellule morte ou vivante et retourne ce nombre.
-        int nb = 0;
-        for (int i = x - 1; i <= x + 1; i++) {
-            for (int j = y - 1; j <= y + 1; j++) {
-                if (!(i == x && j == y))
-                    nb += stateCell(gameBoard, i, j);
-            }
+    private static boolean arrayIsEmpty(LinkedList<Cell>[] tab) {
+        for (int i = 1; i < tab.length; i++) {
+            if (!tab[i].isEmpty())
+                return false;
         }
-        return nb;
+        return true;
     }
 
-    public static LinkedList<Cell> neighborsLL(LinkedList<Cell> gameBoard, int x, int y){    // Stocke les Cells mortes dans une liste chainee
-        LinkedList<Cell> neighbors = new LinkedList<Cell>();
-        for (int i = x - 1; i <= x + 1; i++) {
-            for (int j = y - 1; j <= y + 1; j++) {
-                Cell tmp = new Cell(i, j);
-                if (!(gameBoard.contains(tmp)) && !tmp.equals(new Cell(x, y)))
-                    neighbors.add(tmp);
-            }
-        }
-        return neighbors.mergeSort();
-    }
-
-    public static LinkedList<Cell> nextGameBoard(LinkedList<Cell> gameBoard) {  //calcule l'étape n+1 du jeu de la vie
-        LinkedList<Cell> nextGameBoardList = gameBoard.clone();
-        LinkedList<Cell> newCellsList = new LinkedList<Cell>(); //On stocke toutes les nouvelles Cells mortes à vivantes pour ne pas les "ajouter deux fois".
-        Link<Cell> tmpLink = gameBoard.getHead();
-        while (tmpLink != null) {
-            int x = tmpLink.getElement().getRow();
-            int y = tmpLink.getElement().getColumn();
-            int neighbors = neighbors(gameBoard, x, y);
-            if (!(neighbors == 3 || neighbors == 2)) {
-                nextGameBoardList.remove(new Cell(x, y)); //On supprime les cell vivantes qui meurent
-            }
-            LinkedList<Cell> neighborsList = neighborsLL(gameBoard, x, y);
-            Link<Cell> tmp = neighborsList.getHead();
+    private static LinkedList<Cell>[] mode(LinkedList<Cell> gameBoard) {
+        Link<Cell> tmp = gameBoard.getHead();
+        int x;
+        int y;
+        LinkedList<Cell> N = new LinkedList<Cell>();
+        LinkedList<Cell> NE = new LinkedList<Cell>();
+        LinkedList<Cell> E = new LinkedList<Cell>();
+        LinkedList<Cell> SE = new LinkedList<Cell>();
+        LinkedList<Cell> S = new LinkedList<Cell>();
+        LinkedList<Cell> SO = new LinkedList<Cell>();
+        LinkedList<Cell> O = new LinkedList<Cell>();
+        LinkedList<Cell> NO = new LinkedList<Cell>();
+        //infini
+        if (topTerminal == 0 && lowTerminal == 0 && leftTerminal == 0 && rightTerminal == 0) {
             while (tmp != null) {
-                int x1 = tmp.getElement().getRow();
-                int y1 = tmp.getElement().getColumn();
-                if (neighbors(gameBoard, x1, y1) == 3 && !(newCellsList.contains(new Cell(x1,y1)))) {
-                    nextGameBoardList.put(new Cell(x1, y1));
-                    newCellsList.put(new Cell(x1, y1));
+                x = tmp.getElement().getRow();
+                y = tmp.getElement().getColumn();
+                N.addReverse(new Cell(x + 1, y));
+                NE.addReverse(new Cell(x + 1, y + 1));
+                E.addReverse(new Cell(x, y + 1));
+                SE.addReverse(new Cell(x - 1, y + 1));
+                S.addReverse(new Cell(x - 1, y));
+                SO.addReverse(new Cell(x - 1, y - 1));
+                O.addReverse(new Cell(x, y - 1));
+                NO.addReverse(new Cell(x + 1, y - 1));
+                tmp = tmp.getNext();
+            }
+            //fini
+        } else {
+            while (tmp != null) {
+                x = tmp.getElement().getRow();
+                y = tmp.getElement().getColumn();
+                //si pas dans les bornes
+                if (tmp.getElement().getRow() > topTerminal || tmp.getElement().getRow() < lowTerminal
+                        || tmp.getElement().getColumn() < leftTerminal || tmp.getElement().getColumn() > rightTerminal) {
+                    gameBoard.remove(tmp.getElement());
+                    //sinon circulaire et tmp sur borne
+                } else if (circular && (x == topTerminal || x == lowTerminal || y == leftTerminal || y == rightTerminal)) {
+                    if (x == topTerminal) { //N -> S
+                        N.addReverse(new Cell(lowTerminal, y));
+                        NE.addReverse(new Cell(lowTerminal, y + 1));
+                        E.addReverse(new Cell(x, y + 1));
+                        SE.addReverse(new Cell(x - 1, y + 1));
+                        S.addReverse(new Cell(x - 1, y));
+                        SO.addReverse(new Cell(x - 1, y - 1));
+                        O.addReverse(new Cell(x, y - 1));
+                        NO.addReverse(new Cell(lowTerminal, y - 1));
+                    }
+                    if (x == lowTerminal) { //S -> N
+                        N.addReverse(new Cell(x + 1, y));
+                        NE.addReverse(new Cell(x + 1, y + 1));
+                        E.addReverse(new Cell(x, y + 1));
+                        SE.addReverse(new Cell(topTerminal, y + 1));
+                        S.addReverse(new Cell(topTerminal, y));
+                        SO.addReverse(new Cell(topTerminal, y - 1));
+                        O.addReverse(new Cell(x, y - 1));
+                        NO.addReverse(new Cell(x + 1, y - 1));
+                    }
+                    if (y == leftTerminal) { //O -> E*
+                        N.addReverse(new Cell(x + 1, y));
+                        NE.addReverse(new Cell(x + 1, y + 1));
+                        E.addReverse(new Cell(x, y + 1));
+                        SE.addReverse(new Cell(x - 1, y + 1));
+                        S.addReverse(new Cell(x - 1, y));
+                        SO.addReverse(new Cell(x - 1, rightTerminal));
+                        O.addReverse(new Cell(x, rightTerminal));
+                        NO.addReverse(new Cell(x + 1, rightTerminal));
+                    }
+                    if (y == rightTerminal) { //E -> O
+                        N.addReverse(new Cell(x + 1, y));
+                        NE.addReverse(new Cell(x + 1, leftTerminal));
+                        E.addReverse(new Cell(x, leftTerminal));
+                        SE.addReverse(new Cell(x - 1, leftTerminal));
+                        S.addReverse(new Cell(x - 1, y));
+                        SO.addReverse(new Cell(x - 1, y - 1));
+                        O.addReverse(new Cell(x, y - 1));
+                        NO.addReverse(new Cell(x + 1, y - 1));
+                    }
+                    //sinon non circulaire sur borne
+                } else if (!circular && (x == topTerminal || x == lowTerminal || y == leftTerminal || y == rightTerminal)) {
+                    if (x == topTerminal) { //pas N
+                        E.addReverse(new Cell(x, y + 1));
+                        SE.addReverse(new Cell(x - 1, y + 1));
+                        S.addReverse(new Cell(x - 1, y));
+                        SO.addReverse(new Cell(x - 1, y - 1));
+                        O.addReverse(new Cell(x, y - 1));
+                    }
+                    if (x == lowTerminal) { //pas S
+                        N.addReverse(new Cell(x + 1, y));
+                        NE.addReverse(new Cell(x + 1, y + 1));
+                        E.addReverse(new Cell(x, y + 1));
+                        O.addReverse(new Cell(x, y - 1));
+                        NO.addReverse(new Cell(x + 1, y - 1));
+                    }
+                    if (y == leftTerminal) { //pas O
+                        N.addReverse(new Cell(x + 1, y));
+                        NE.addReverse(new Cell(x + 1, y + 1));
+                        E.addReverse(new Cell(x, y + 1));
+                        SE.addReverse(new Cell(x - 1, y + 1));
+                        S.addReverse(new Cell(x - 1, y));
+                    }
+                    if (y == rightTerminal) { //pas E
+                        N.addReverse(new Cell(x + 1, y));
+                        S.addReverse(new Cell(x - 1, y));
+                        SO.addReverse(new Cell(x - 1, y - 1));
+                        O.addReverse(new Cell(x, y - 1));
+                        NO.addReverse(new Cell(x + 1, y - 1));
+                    }
+                } else {
+                    N.addReverse(new Cell(x + 1, y));
+                    NE.addReverse(new Cell(x + 1, y + 1));
+                    E.addReverse(new Cell(x, y + 1));
+                    SE.addReverse(new Cell(x - 1, y + 1));
+                    S.addReverse(new Cell(x - 1, y));
+                    SO.addReverse(new Cell(x - 1, y - 1));
+                    O.addReverse(new Cell(x, y - 1));
+                    NO.addReverse(new Cell(x + 1, y - 1));
                 }
                 tmp = tmp.getNext();
             }
-            tmpLink = tmpLink.getNext();
+            N = N.sortReverse();
+            NE = NE.sortReverse();
+            E = E.sortReverse();
+            SE = SE.sortReverse();
+            S = S.sortReverse();
+            SO = SO.sortReverse();
+            O = O.sortReverse();
+            NO = NO.sortReverse();
         }
-        return nextGameBoardList;
+        LinkedList[] array = {N, NE, E, SE, S, SO, O, NO};
+        return (LinkedList<Cell>[]) array; // cast
     }
 
-    public static LinkedList<Cell> generateStep(LinkedList<Cell> gameBoard, int nbStep) {
-        LinkedList<Cell> nextGameBoardList = gameBoard.clone();
-        while (nbStep > 0) {
-            nextGameBoardList = nextGameBoard(nextGameBoardList);
-            print(nextGameBoardList);
-            nbStep--;
+    private static LinkedList<Cell> nextGameBoard(LinkedList<Cell> gameBoard) {
+        LinkedList<Cell>[] arrayList = mode(gameBoard);
+        LinkedList<Cell> neighborsList = new LinkedList<Cell>();
+        Cell min = arrayList[0].getHead().getElement();
+        int indexOfMinList = 0;
+        while (!arrayIsEmpty(arrayList)) { //TQ le tableau de liste n'est pas vide
+            if (min == null) {
+                for (int i = 0; i < arrayList.length; i++) {
+                    if (!arrayList[i].isEmpty()) {
+                        min = arrayList[i].getHead().getElement();
+                        indexOfMinList = i;
+                        break;
+                    }
+                }
+                for (int i = 1; i < arrayList.length; i++) {
+                    if (!arrayList[i].isEmpty() && min.compareTo(arrayList[i].getHead().getElement()) < 0) { //pas de pb de NullPointerException
+                        min = arrayList[i].getHead().getElement();
+                        indexOfMinList = i;
+                    }
+                }
+            } else {
+                for (int i = 0; i < arrayList.length; i++) {
+                    if (!arrayList[i].isEmpty() && min.compareTo(arrayList[i].getHead().getElement()) < 0) {
+                        min = arrayList[i].getHead().getElement();
+                        indexOfMinList = i;
+                    }
+                }
+            }
+            Link<Cell> link = gameBoard.get(min);
+            if (link != null)
+                link.getElement().addNeighbors(1);
+            else {
+                link = neighborsList.get(min);
+                if (link == null) {
+                    neighborsList.put(min);
+                    link = neighborsList.get(min);
+                    link.getElement().addNeighbors(1);
+                } else
+                    link.getElement().addNeighbors(1);
+            }
+            arrayList[indexOfMinList].removeReverse(min);
+            if (!arrayList[indexOfMinList].isEmpty())
+                min = arrayList[indexOfMinList].getHead().getElement();
+            else
+                min = null;
         }
-        return nextGameBoardList;
+        Link<Cell> tmp = gameBoard.getHead();
+        while (tmp != null) {
+            if (!(tmp.getElement().getNbNeighbors() == 1003 || tmp.getElement().getNbNeighbors() == 1002))
+                gameBoard.remove(tmp.getElement());
+            tmp.getElement().setNbNeighbors(1000);
+            tmp = tmp.getNext();
+        }
+        tmp = neighborsList.getHead();
+        while (tmp != null) {
+            if (tmp.getElement().getNbNeighbors() == 1003) {
+                tmp.getElement().setNbNeighbors(1000);
+                gameBoard.put(tmp.getElement());
+            }
+            tmp = tmp.getNext();
+        }
+        return gameBoard;
     }
 
-    public static LinkedList<Cell> generateList(int nbLink) {
-        LinkedList<Cell> gameBoard = new LinkedList<Cell>();
-        while (nbLink > 0) {
-            gameBoard.add(new Cell((int) (Math.random() * 100), (int) (Math.random() * 100)));
-            nbLink--;
+    private static LinkedList<Cell> generateStep(LinkedList<Cell> gameBoard, int nbStep) {
+        LinkedList<Cell> list = gameBoard.clone();
+        int time = 0;
+        int i;
+        for (i = 0; i < nbStep; i++) {
+            System.out.println(i);
+            long start = System.currentTimeMillis();
+            list = nextGameBoard(list);
+            long end = System.currentTimeMillis();
+            print(list);
+            time += (end - start);
         }
-        return gameBoard.mergeSort();
+        System.out.println("time = " + time);
+        return list;
     }
 
     //retourne la taille de la queue.
-    public static int calculAsymptotique(LinkedList<Cell> liste, int max) {
+    private static int calculAsymptotique(LinkedList<Cell> liste, int max) {
         LinkedList<Cell> c1 = liste.clone();
         LinkedList<Cell> c2 = liste.clone();
-        LinkedList<Cell> c3 = liste.clone();
+        LinkedList<Cell> c3;
         int i = 0;
+        boolean first = true;
 
         while (i<=max) {
             if (c1.isEmpty()) {
@@ -160,9 +319,10 @@ public class Game {
                 c3 = nextGameBoard(c2);
                 c2 = nextGameBoard(c3);
                 i++;
-                if (c1.equals(c2) || c1.equals(c3)) {
+                if (c1.equals(c2) || (c1.equals(c3) && !first)) {
                     return i;//periodique (possiblement stable)
                 } else {
+                    first = false;
                     int[] d = decale(c1,c2);
                     if (!(d[0] == 0 && d[1] == 0)) {
                         return max + i;//decale
@@ -173,14 +333,14 @@ public class Game {
         return 2 * max + 1;//inconnu
     }
 
-    public static int[] decale(LinkedList<Cell> c1, LinkedList<Cell> c2) {
+    private static int[] decale(LinkedList<Cell> c1, LinkedList<Cell> c2) {
         int[] tab = {0, 0};
         Link<Cell> m1 = c1.getHead();
         Link<Cell> m2 = c2.getHead();
-        int decaleX = m1.getElement().getRow() - m2.getElement().getRow();
-        int decaleY = m1.getElement().getColumn() - m2.getElement().getColumn();
+        int decaleX = m2.getElement().getRow() - m1.getElement().getRow();
+        int decaleY = m2.getElement().getColumn() - m1.getElement().getColumn();
         while (m1 != null && m2 != null) {
-            if (m1.getElement().getRow() - m2.getElement().getRow() != decaleX || m1.getElement().getColumn() - m2.getElement().getColumn() != decaleY) {
+            if (m2.getElement().getRow() - m1.getElement().getRow() != decaleX || m2.getElement().getColumn() - m1.getElement().getColumn() != decaleY) {
                 return tab;
             }
             m1 = m1.getNext();
@@ -195,14 +355,14 @@ public class Game {
         }
     }
 
-    public static int[] periode(LinkedList<Cell> liste, int queue, boolean dec) {
+    private static int[] periode(LinkedList<Cell> liste, int ca, boolean dec) {
         int[] tab = {0, 0, 0};
         LinkedList<Cell> c1 = liste.clone();
-        for (int i = 0; i < queue; i++) {
+        for (int i = 0; i < ca; i++) {
             c1 = nextGameBoard(c1);
         }
         LinkedList<Cell> c2 = nextGameBoard(c1.clone());
-        int i = 0;
+        int i = 1;
         if (!dec) {
             while (!c1.equals(c2)){
                 c2 = nextGameBoard(c2);
@@ -224,13 +384,36 @@ public class Game {
         }
     }
 
-    public static  LinkedList<Cell> loader(String filename) {
+    private static int queue(LinkedList<Cell> liste, int periode, boolean dec){
+        LinkedList<Cell> c1 = liste.clone();
+        LinkedList<Cell> c2 = liste.clone();
+        for (int i = 0; i<periode; i++){
+            c2 = nextGameBoard(c2);
+        }
+        int i =0;
+        if (dec){
+            int[] d = decale(c1,c2);
+            while (d[0] == 0 && d[1] == 0){
+                i++;
+            }
+            return i;
+        } else {
+            while (!c1.equals(c2)){
+                i++;
+            }
+            return i;
+        }
+    }
+
+    private static  LinkedList<Cell> loader(String filename) {
         LinkedList<Cell> liste = new LinkedList<Cell>();
         boolean lfl = false; //stand for look for letter
         boolean lfbol = false; //stand for look for block origin ligne
         boolean lfboc = false; //stand for look for block origin colonne
         boolean lfe = false; // stand for look for element
         boolean arc = false; // stand for allow return carriage (permet d'eviter le saut de ligne si 2 \n d'affilÃ©)
+        boolean minus = false;
+        boolean nfound = false;
         int l = 0; // num de la ligne lors de la recherche d'Ã©lÃ©ment
         int c = 0; // num de la colone lors de la recherche d'Ã©lÃ©ment
         int lo = 0; // ligne d'origine d'un bloc
@@ -258,19 +441,36 @@ public class Game {
                         lfl = false;
                     }
                 } else if(lfbol){
+                    if((char)n == '-'){
+                        minus = true;
+                    }
                     if((char)n == '0' ||(char)n == '1' ||(char)n == '2' ||(char)n == '3' ||(char)n == '4' ||(char)n == '5' ||(char)n == '6' ||(char)n == '7' ||(char)n == '8' ||(char)n == '9'){
                         lo=10*lo+Integer.parseInt(String.valueOf((char)n));
-                    }else if((char)n == ' '){
+                        nfound = true;
+                    }else if((char)n == ' ' && nfound){
+                        nfound = false;
                         lfbol = false;
                         lfboc = true;
+                        if (minus) {
+                            lo = -lo;
+                            minus = false;
+                        }
                         l = lo;
+//                        System.out.println(lo);
                     }
                 } else if(lfboc) {
+                    if((char)n == '-'){
+                        minus = true;
+                    }
                     if((char)n == '0' ||(char)n == '1' ||(char)n == '2' ||(char)n == '3' ||(char)n == '4' ||(char)n == '5' ||(char)n == '6' ||(char)n == '7' ||(char)n == '8' ||(char)n == '9'){
                         co=10*co+Integer.parseInt(String.valueOf((char)n));
                     }else if((char)n == '\n'){
                         lfboc = false;
                         lfe = true;
+                        if (minus) {
+                            co = -co;
+                            minus = false;
+                        }
                         c = co;
                     }
                 } else if (lfe) {
@@ -285,7 +485,7 @@ public class Game {
                         if (arc){
                             arc=false;
                             c=co;
-                            l=l+1;
+                            l=l-1;
                         }
                     }
                 }
@@ -296,34 +496,48 @@ public class Game {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return liste.mergeSort();
+        return liste.sort();
     }
 
     public static void main(String [] args) {
-//        long start = System.currentTimeMillis();
-//        LinkedList<Cell> list = generateList(3000);
-//        long end = System.currentTimeMillis();
-//        System.out.println(end - start);
-        //print(list);
+        long start, end;
+        start = System.currentTimeMillis();
         LinkedList<Cell> list = loader("C:\\Users\\Bonjour\\Documents\\Cours\\Jeu_de_la_vie\\src\\jeuDeLaVieTest\\vaisseau.lif");
-        long start = System.currentTimeMillis();
-        LinkedList<Cell> l2 = generateStep(list, 1);
-        long end = System.currentTimeMillis();
-        System.out.println("time: " + (end - start));
+        end = System.currentTimeMillis();
+        System.out.println("load: " + (end - start));
+        start = System.currentTimeMillis();
+        print(list);
+        end = System.currentTimeMillis();
+        System.out.println("print list: " + (end - start));
+        System.out.println(list);
+
+        list = generateStep(list, 20);
+        System.out.println(list);
+//        print(list);
+
         int max = 10;
         int ca = calculAsymptotique(list, max);
         if (ca<0) {
-            System.out.println("Mort au bout de " + ca + " cycles.");
+            System.out.println("Mort au bout de " + (-ca) + " cycles.");
         } else if (ca == 2*max+1){
             System.out.println("Etat inconnu de la mort");
         } else if (ca <=max){
-            System.out.println("Etat périodique au bout de " + ca + "cycles.");
+            System.out.println("Etat périodique au bout de " + ca + " cycles au maximum.");
             int[] p = periode(list, ca, false);
             System.out.println("La période est de " + p[0] + ".");
+            if(p[0]!=1) {
+                int qqueue = queue(list, p[0], false);
+                System.out.println("Il y a " + qqueue + " cycles avant la structure périodique.");
+            }
         } else if (ca <= 2* max){
-            System.out.println("Etat de decalage au bout de " + ca + "cycles.");
-            int[] p = periode(list, ca, false);
-            System.out.println("La période est de " + p[0] + " avec un décalage de " + p[1] + " " + p[2] + ".");
+            ca = ca-max;
+            System.out.println("Etat de decalage au bout de " + ca + " cycles au maximum.");
+            int[] p = periode(list, ca, true);
+            System.out.println("La période est de " + p[0] + " avec un décalage de " + p[1] + " lignes et " + p[2] + " colonnes.");
+            if(p[0]!=1) {
+                int qqueue = queue(list, p[0], true);
+                System.out.println("Il y a  "+ qqueue + " cycles avant la structure périodique (en décalage).");
+            }
         } else {
             System.out.println("wut !!!");
         }

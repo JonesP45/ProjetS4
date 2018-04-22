@@ -32,13 +32,13 @@ public class LinkedList<T extends Comparable<Object>> {
 				return false;
 			tmp1 = tmp1.getNext();
 			tmp2 = tmp2.getNext();
-			if ((tmp1 == null) || (tmp2 == null))
+			if (((tmp1 == null) && (tmp2 != null)) || ((tmp2 == null) && (tmp1 != null)))
 				return false;
 		}
 		return true;
 	}
 
-	public boolean contains(T element) {
+	public boolean containsAll(T element) {
 		if (this.isEmpty())
 			return false;
 		else {
@@ -49,6 +49,44 @@ public class LinkedList<T extends Comparable<Object>> {
 				tmp = tmp.getNext();
 			}
 			return false;
+		}
+	}
+
+	public boolean contains(T element) {
+		if (this.isEmpty())
+			return false;
+		else {
+			Link<T> tmp = head;
+			while (tmp != null && tmp.getElement().compareTo(element) < 0) {
+				tmp = tmp.getNext();
+			}
+			return (tmp != null && tmp.getElement().equals(element));
+		}
+	}
+
+	public boolean containsReverse(T element) {
+		if (this.isEmpty())
+			return false;
+		else {
+			Link<T> tmp = head;
+			while (tmp != null && tmp.getElement().compareTo(element) > 0) {
+				tmp = tmp.getNext();
+			}
+			return (tmp != null && tmp.getElement().equals(element));
+		}
+	}
+
+	public Link<T> get(T element) {
+		if (this.isEmpty())
+			return null;
+		else {
+			Link<T> tmp = head;
+			while (tmp != null && tmp.getElement().compareTo(element) < 0) {
+				tmp = tmp.getNext();
+			}
+			if (tmp != null && tmp.getElement().equals(element))
+				return tmp;
+			return null;
 		}
 	}
 
@@ -118,9 +156,22 @@ public class LinkedList<T extends Comparable<Object>> {
 		return false;
 	}
 
+	public boolean addReverse(T element) {
+		if (!this.containsReverse(element)) {
+			if (head == null)
+				head = new Link<T>(element);
+			else {
+				Link<T> tmp = head;
+				head = new Link<T>(element, tmp);
+			}
+			return true;
+		}
+		return false;
+	}
+
 	public boolean put(T element) {
 		if (!this.contains(element)) {
-			if (head == null)
+			if (this.isEmpty())
 				head = new Link<T>(element);
 			else {
 				Link<T> tmp = head;
@@ -133,6 +184,34 @@ public class LinkedList<T extends Comparable<Object>> {
 							tmp2.setNext(new Link<T>(element, null));
 						}
 					} else if (tmp.getElement().compareTo(element) > 0) {
+						if (tmp.equals(head)) {
+							head = new Link<T>(element, tmp2);
+						} else
+							tmp2.setNext(new Link<T>(element, tmp));
+						return true;
+					}
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public boolean putReverse(T element) {
+		if (!this.containsReverse(element)) {
+			if (this.isEmpty())
+				head = new Link<T>(element);
+			else {
+				Link<T> tmp = head;
+				Link<T> tmp2 = tmp;
+				while (tmp != null) {
+					if (tmp.getElement().compareTo(element) > 0) {
+						tmp2 = tmp;
+						tmp = tmp.getNext();
+						if (tmp == null) {
+							tmp2.setNext(new Link<T>(element, null));
+						}
+					} else if (tmp.getElement().compareTo(element) < 0) {
 						if (tmp.equals(head)) {
 							head = new Link<T>(element, tmp2);
 						} else
@@ -171,6 +250,43 @@ public class LinkedList<T extends Comparable<Object>> {
 		return false;
 	}
 
+	public boolean removeReverse(T element) {
+		if (this.containsReverse(element)) {
+			if (head.getElement().equals(element)) {
+				head = head.getNext();
+			} else {
+				Link<T> tmp = head;
+				while (tmp != null) {
+					Link<T> tmpBefore = tmp;
+					if (tmp.getNext() != null)
+						tmp = tmp.getNext();
+					else
+						break;
+					Link<T> tmpAfter = null;
+					if (tmp.getNext() != null)
+						tmpAfter = tmp.getNext();
+					if (tmp.getElement().equals(element)) {
+						tmpBefore.setNext(tmpAfter);
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	public LinkedList<T> reverse() {
+		if (this.isEmpty())
+			return this;
+		Link<T> tmp = head;
+		LinkedList<T> aux = new LinkedList<T>();
+		while (tmp != null) {
+			aux.add(tmp.getElement());
+			tmp = tmp.getNext();
+		}
+		return aux;
+	}
+
 	public LinkedList<T> sort() {
 		if (this.size() <= 1)
 			return this;
@@ -178,6 +294,18 @@ public class LinkedList<T extends Comparable<Object>> {
 		Link<T> tmp = head;
 		while (tmp != null) {
 			res.put(tmp.getElement());
+			tmp = tmp.getNext();
+		}
+		return res;
+	}
+
+	public LinkedList<T> sortReverse() {
+		if (this.size() <= 1)
+			return this;
+		LinkedList<T> res = new LinkedList<T>();
+		Link<T> tmp = head;
+		while (tmp != null) {
+			res.putReverse(tmp.getElement());
 			tmp = tmp.getNext();
 		}
 		return res;
@@ -234,16 +362,6 @@ public class LinkedList<T extends Comparable<Object>> {
 
 	public boolean wellInGameBoard(int i, int j, int x, int y) {
 		return x < i && y < j;
-	}
-
-	public LinkedList<T> concatenate(LinkedList<T> l1, LinkedList<T> l2) {
-		if (l1.head == null)
-			return l2;
-		Link<T> tmp = l1.head;
-		while (tmp.getNext() != null)
-			tmp = tmp.getNext();
-		tmp.setNext(l2.head);
-		return l1;
 	}
 
 	public String toString() {

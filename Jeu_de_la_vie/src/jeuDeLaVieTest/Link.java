@@ -5,6 +5,11 @@ public class Link<T> {
     private T element;
     private Link<T> next;
 
+    public Link() {
+        this.element = null;
+        this.next = null;
+    }
+
     public Link(T element) {
         this.element = element;
         this.next = null;
@@ -22,7 +27,7 @@ public class Link<T> {
         if (!(o instanceof Link))
             return false;
         Link link = (Link) o;
-        return element == link.element;
+        return element.equals(link.element);
     }
 
     public Link<T> clone() {

@@ -14,6 +14,10 @@ public class Cell implements Comparable<Object> {
         nbNeighbors = 1000;
     }
 
+    public void addNeighbors(int neighbors) {
+        nbNeighbors += neighbors;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -43,7 +47,7 @@ public class Cell implements Comparable<Object> {
     }
 
     public String toString() {
-        return "[" + row + ", " + column + "]";
+        return "[" + row + ", " + column + ", " + nbNeighbors + "]";
     }
 
     public int getRow() {
@@ -54,12 +58,20 @@ public class Cell implements Comparable<Object> {
         return column;
     }
 
+    public int getNbNeighbors() {
+        return nbNeighbors;
+    }
+
     public void setRow(int row) {
         this.row = row;
     }
 
     public void setColumn(int column) {
         this.column = column;
+    }
+
+    public void setNbNeighbors(int nbNeighbors) {
+        this.nbNeighbors = nbNeighbors;
     }
 
 }
