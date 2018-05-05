@@ -13,9 +13,7 @@ public class LinkedList<T extends Comparable<Object>> {
 	}
 
 	public boolean isEmpty() {
-		if (head == null)
-			return true;
-		return false;
+		return (head == null);
 	}
 
 	@Override
@@ -36,20 +34,6 @@ public class LinkedList<T extends Comparable<Object>> {
 				return false;
 		}
 		return true;
-	}
-
-	public boolean containsAll(T element) {
-		if (this.isEmpty())
-			return false;
-		else {
-			Link<T> tmp = head;
-			while (tmp != null) {
-				if (tmp.getElement().equals(element))
-					return true;
-				tmp = tmp.getNext();
-			}
-			return false;
-		}
 	}
 
 	public boolean contains(T element) {
@@ -107,40 +91,17 @@ public class LinkedList<T extends Comparable<Object>> {
 	public LinkedList<T> clone() {
 		if (this.isEmpty())
 			return new LinkedList<T>();
-		else {
-			LinkedList<T> clonedList = new LinkedList<T>();
-			clonedList.head = new Link<T>(head.getElement());
-			Link<T> tmp = head;
-			Link<T> clonedLink = clonedList.head;
-			while (tmp.getNext()!= null){
-				Link<T> clonedLinkNext = new Link<T>(tmp.getNext().getElement());
-				clonedLink.setNext(clonedLinkNext);
-				clonedLink = clonedLink.getNext();
-				tmp = tmp.getNext();
-			}
-			return clonedList;
+		LinkedList<T> clonedList = new LinkedList<T>();
+		clonedList.head = new Link<T>(head.getElement());
+		Link<T> tmp = head;
+		Link<T> clonedLink = clonedList.head;
+		while (tmp.getNext()!= null){
+			Link<T> clonedLinkNext = new Link<T>(tmp.getNext().getElement());
+			clonedLink.setNext(clonedLinkNext);
+			clonedLink = clonedLink.getNext();
+			tmp = tmp.getNext();
 		}
-	}
-
-	public LinkedList<T> cloneBis(int start, int end){
-		if (this.isEmpty())
-			return new LinkedList<T>();
-		else if (start <= this.size() && end <= this.size() && start <= end && start >= 1 && end >= 1){
-			LinkedList<T> clonedList = new LinkedList<T>();
-			int acc = 1;
-			Link<T> tmp = head;
-			while (acc < start) {
-				tmp = tmp.getNext();
-				acc++;
-			}
-			while (acc < end){
-				clonedList.add(tmp.getElement());
-				tmp = tmp.getNext();
-				acc++;
-			}
-			return clonedList;
-		}
-		return null;
+		return clonedList;
 	}
 
 	public boolean add(T element) {
@@ -275,18 +236,6 @@ public class LinkedList<T extends Comparable<Object>> {
 		return false;
 	}
 
-	public LinkedList<T> reverse() {
-		if (this.isEmpty())
-			return this;
-		Link<T> tmp = head;
-		LinkedList<T> aux = new LinkedList<T>();
-		while (tmp != null) {
-			aux.add(tmp.getElement());
-			tmp = tmp.getNext();
-		}
-		return aux;
-	}
-
 	public LinkedList<T> sort() {
 		if (this.size() <= 1)
 			return this;
@@ -309,59 +258,6 @@ public class LinkedList<T extends Comparable<Object>> {
 			tmp = tmp.getNext();
 		}
 		return res;
-	}
-
-	public LinkedList<T> insert(T element) {
-		if (this.isEmpty())
-			return new LinkedList<T>(new Link<T>(element));
-		else if (element.compareTo(head.getElement()) < 0) {
-			this.add(element);
-			return this;
-		} else {
-			T elementHead = head.getElement();//tmp de la head
-			this.setHead(head.getNext());//on vire la head de la list
-			LinkedList<T> listRec = this.insert(element);//.add(list.head.getElement());
-			listRec.add(elementHead);
-			return listRec;
-		}
-	}
-
-	public LinkedList<T> merge(LinkedList<T> l1, LinkedList<T> l2) {
-		T elementHead;
-		if (l1.head == null)
-			return l2;
-		else if (l2.head == null)
-			return l1;
-		else
-			elementHead = l1.head.getElement();
-		l1.setHead(l1.head.getNext());//on vire la head de l1
-		return merge(l1, l2.insert(elementHead));
-	}
-
-	public LinkedList<T> mergeSort() {
-		if (this.size() <= 1)
-			return this;
-		else {
-			int size = this.size() / 2;
-			LinkedList<T> l1 = new LinkedList<T>();
-			LinkedList<T> l2 = new LinkedList<T>();
-			int acc = 0;
-			Link<T> tmp = this.head;
-			while (acc < size) {
-				l1.add(tmp.getElement());
-				tmp = tmp.getNext();
-				acc++;
-			}
-			while (tmp != null) {
-				l2.add(tmp.getElement());
-				tmp = tmp.getNext();
-			}
-			return merge(l1.mergeSort(), l2.mergeSort());
-		}
-	}
-
-	public boolean wellInGameBoard(int i, int j, int x, int y) {
-		return x < i && y < j;
 	}
 
 	public String toString() {

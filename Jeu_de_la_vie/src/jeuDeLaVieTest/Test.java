@@ -1,11 +1,11 @@
 package jeuDeLaVieTest;
 
-import java.util.Timer;
-import java.util.TimerTask;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import javax.swing.Timer;
+import java.awt.event.*;
 
 public class Test {
 
@@ -286,21 +286,17 @@ public class Test {
         return gameBoard;
     }
 
+    private static Timer t = new Timer(0, null);
     private static void generateStep(LinkedList<Cell> gameBoard, int nbStep) {
         LinkedList<Cell> list = gameBoard.clone();
-        int delay = 0; // delay for 5 sec.
-        int period = 500; // repeat every sec.
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask()
-        {
+        ActionListener taskPerformer = new ActionListener() {
             int count = 0;
             long totalTime = 0;
             long printTime = 0;
             long time;
             long start;
             long end;
-            public void run()
-            {
+            public void actionPerformed(ActionEvent e) {
                 if (count < nbStep) {
                     System.out.println();
                     System.out.println("Génération " + count + ": ");
@@ -317,17 +313,19 @@ public class Test {
                     printTime += time;
                     System.out.println("Temps pour calculer la génération " + count + ": " + time + " milisecondes.");
                     count++;
-                } else {
+                } else { //if (i == nbStep){
                     System.out.println();
                     System.out.println("Exécution terminé.");
                     System.out.println("Temps pour calculer " + nbStep + " générations: " + totalTime + " milisecondes.");
                     System.out.println("Temps pour calculer " + nbStep + " affichages: " + printTime + " milisecondes.");
                     System.out.println("Temps total: " + (printTime + totalTime) + " milisecondes.");
-                    timer.cancel();
+                    t.stop();
                 }
-
             }
-        }, delay, period);
+        };
+        t = new Timer(1000, taskPerformer);
+        t.start();
+        while (t.isRunning());
     }
 
     //retourne la taille de la queue.
@@ -338,11 +336,11 @@ public class Test {
         int i = 0;
         boolean first = true;
 
-        while (i<=max) {
+        while (i <= max) {
             if (c1.isEmpty()) {
                 return -i;//mort
             } else if (c2.isEmpty()) {
-                return -2*i;//mort
+                return -2 * i;//mort
             } else {
                 c1 = nextGameBoard(c1);
                 c3 = nextGameBoard(c2);
@@ -413,13 +411,13 @@ public class Test {
         }
     }
 
-    private static int queue(LinkedList<Cell> liste, int periode, boolean dec){
+    private static int queue(LinkedList<Cell> liste, int periode, boolean dec) {
         LinkedList<Cell> c1 = liste.clone();
         LinkedList<Cell> c2 = liste.clone();
         for (int i = 0; i<periode; i++){
             c2 = nextGameBoard(c2);
         }
-        int i =0;
+        int i = 0;
         if (dec){
             int[] d = decale(c1,c2);
             while (d[0] == 0 && d[1] == 0){
@@ -485,7 +483,6 @@ public class Test {
                             minus = false;
                         }
                         l = lo;
-//                        System.out.println(lo);
                     }
                 } else if(lfboc) {
                     if((char)n == '-'){
@@ -530,14 +527,14 @@ public class Test {
 
     public static void main(String [] Args) {
 
-        if (Args[0].equals("-name")){
+        if (Args[0].equals("-name")) {
             System.out.println("Jean-Pacôme Delmas et Romain Villebonnet");
         }
 
         else if (Args[0].equals("-h")) {
             System.out.println("-h : Affiche cette aide.");
             System.out.println("-name : Affiche les noms et prénoms des auteurs.");
-            System.out.println("-s d fichier.lif : Simule des générations du jeu avec leur numéro de génération pendant d générations.");
+            System.out.println("-s d fichier.lif : Simule des générations du jeu avec leur numéro de génération pendant d.");
             System.out.println("-f d fichier.lif haut bas gauche droite : Comme -s, mais dans un monde fini.");
             System.out.println("-t d fichier.lif haut bas gauche droite : Comme -f, mais dans un monde circulaire (tore).");
             System.out.println("-c max fichier.lif : Calcule le type d'évolution du jeu sans dépasser la duréée max.");
@@ -546,18 +543,18 @@ public class Test {
             System.out.println("(Pas implémenté) -w max dossier : Comme -c, mais pour tout les fichiers du dossier, les résultats sont sortis sous la forme d'un fichier HTML.");
         }
 
-        else if (Args[0].equals("-s") || Args[0].equals("-f") || Args[0].equals("-t")){
-            if (Args[0].equals("-t")){
+        else if (Args[0].equals("-s") || Args[0].equals("-f") || Args[0].equals("-t")) {
+            if (Args[0].equals("-t")) {
                 circular = true;
             } else {
                 circular = false;
             }
-            if (Args[0].equals("-s")){
+            if (Args[0].equals("-s")) {
                 topTerminal = 0;
                 lowTerminal = 0;
                 leftTerminal = 0;
                 rightTerminal = 0;
-            }else {
+            } else {
                 topTerminal = Integer.parseInt(Args[3]);
                 lowTerminal = Integer.parseInt(Args[4]);
                 leftTerminal = Integer.parseInt(Args[5]);
@@ -569,17 +566,17 @@ public class Test {
         }
 
         else if (Args[0].equals("-c") || Args[0].equals("-cf") || Args[0].equals("-ct")) {
-            if (Args[0].equals("-ct")){
+            if (Args[0].equals("-ct")) {
                 circular = true;
-            }else {
+            } else {
                 circular = false;
             }
-            if (Args[0].equals("-c")){
+            if (Args[0].equals("-c")) {
                 topTerminal = 0;
                 lowTerminal = 0;
                 leftTerminal = 0;
                 rightTerminal = 0;
-            }else {
+            } else {
                 topTerminal = Integer.parseInt(Args[3]);
                 lowTerminal = Integer.parseInt(Args[4]);
                 leftTerminal = Integer.parseInt(Args[5]);
@@ -590,9 +587,9 @@ public class Test {
             int ca = calculAsymptotique(list, max);
             if (ca < 0) {
                 System.out.println("Mort au bout de " + (-ca) + " cycles.");
-            } else if (ca == 2 * max + 1){
+            } else if (ca == 2 * max + 1) {
                 System.out.println("Etat inconnu.");
-            } else if (ca <= max){
+            } else if (ca <= max) {
                 System.out.println("Etat périodique au bout de " + ca + " cycles au maximum. (re-spécifié si différent)");
                 int[] p = periode(list, ca, false);
                 System.out.println("La période est de " + p[0] + ".");
@@ -600,7 +597,7 @@ public class Test {
                     int qqueue = queue(list, p[0], false);
                     System.out.println("Il y a " + qqueue + " cycles avant la structure périodique.");
                 }
-            } else if (ca <= 2 * max){
+            } else if (ca <= 2 * max) {
                 ca = ca - max;
                 System.out.println("Etat de decalage au bout de " + ca + " cycles au maximum.");
                 int[] p = periode(list, ca, true);

@@ -5,11 +5,6 @@ public class Link<T> {
     private T element;
     private Link<T> next;
 
-    public Link() {
-        this.element = null;
-        this.next = null;
-    }
-
     public Link(T element) {
         this.element = element;
         this.next = null;
@@ -40,10 +35,6 @@ public class Link<T> {
 
     public T getElement() {
         return element;
-    }
-
-    public void setElement(T element) {
-        this.element = element;
     }
 
     public Link<T> getNext() {
