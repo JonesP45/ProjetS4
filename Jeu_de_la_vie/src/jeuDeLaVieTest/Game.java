@@ -7,7 +7,7 @@ import java.io.IOException;
 import javax.swing.Timer;
 import java.awt.event.*;
 
-public class Test {
+public class Game {
 
     private static boolean circular;
     private static int topTerminal;
