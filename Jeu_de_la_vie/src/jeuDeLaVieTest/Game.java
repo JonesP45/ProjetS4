@@ -4,15 +4,23 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import javax.swing.Timer;
+import java.awt.event.*;
 
-public class Game {
+public class Test {
 
-    private static boolean circular = true;
-    private static int topTerminal = 10;
-    private static int lowTerminal = -11;
-    private static int leftTerminal = -10;
-    private static int rightTerminal = 11;
+    private static boolean circular;
+    private static int topTerminal;
+    private static int lowTerminal;
+    private static int leftTerminal;
+    private static int rightTerminal;
 
+
+    /**
+     * Affiche en console la grille correspondant à la liste list passée en paramètre.
+     * Les coordonnées sont gérées dans un maximum de -1 million/+1million dans le cas des grilles infinies.
+     * @param list liste a afficher.
+     */
     private static void print(LinkedList<Cell> list) {
         int maxTop = topTerminal, maxLow = lowTerminal, maxLeft = leftTerminal, maxRight = rightTerminal;
         Link<Cell> tmp = list.getHead();
@@ -37,7 +45,6 @@ public class Game {
         int row = maxTop;
         int column = maxLeft;
         Cell pointer = new Cell(row, column);
-        System.out.println();
         while (tmp != null) {//on ne se préocupe pas de la fin
             if (tmp.getElement().equals(pointer)) {//si le Link est égual au pointer
                 System.out.print("*"); //gameBoard.add(1, i, j);//1 dans la case correspondante
@@ -80,6 +87,11 @@ public class Game {
         }
     }
 
+    /**
+     * Prends un tableau de listes chainées de Cell en paramètre. Vérifie s'il est vide.
+     * @param tab
+     * @return true si le tableau est vide, false sinon.
+     */
     private static boolean arrayIsEmpty(LinkedList<Cell>[] tab) {
         for (int i = 1; i < tab.length; i++) {
             if (!tab[i].isEmpty())
@@ -88,6 +100,11 @@ public class Game {
         return true;
     }
 
+    /**
+     * Crée un tableau de 8 listes chainées en décalant les coordonées depuis la liste passée en paramètre de 1 dans chaque direction possible.
+     * @param gameBoard liste chainiée de cellule dont on veux les listes décalées.
+     * @return le tableau de 8 liste chainées
+     */
     private static LinkedList<Cell>[] mode(LinkedList<Cell> gameBoard) {
         Link<Cell> tmp = gameBoard.getHead();
         int x;
@@ -221,6 +238,11 @@ public class Game {
         return (LinkedList<Cell>[]) array; // cast
     }
 
+    /**
+     * A partir d'une liste chainée de cell, calcule la génération suivante. La liste originelle est modifiée.
+     * @param gameBoard La liste dont on veux calculer la génération suivante.
+     * @return gameBoard Liste modifié. Il s'agit du même objet que celui donné en entrée.
+     */
     private static LinkedList<Cell> nextGameBoard(LinkedList<Cell> gameBoard) {
         LinkedList<Cell>[] arrayList = mode(gameBoard);
         LinkedList<Cell> neighborsList = new LinkedList<Cell>();
@@ -285,23 +307,65 @@ public class Game {
         return gameBoard;
     }
 
-    private static LinkedList<Cell> generateStep(LinkedList<Cell> gameBoard, int nbStep) {
+
+    private static Timer t = new Timer(0, null);
+    /**
+     * Calcule et affiche les nbStep générations suivantes de gameBoard.
+     * @param gameBoard Liste initiale dont on veux calculé les générations. Sa valeur est modifiée par l'éxécution.
+     * @param nbStep Nombre de générations a calculer.
+     */
+    private static void generateStep(LinkedList<Cell> gameBoard, int nbStep) {
         LinkedList<Cell> list = gameBoard.clone();
-        int time = 0;
-        int i;
-        for (i = 0; i < nbStep; i++) {
-            System.out.println(i);
-            long start = System.currentTimeMillis();
-            list = nextGameBoard(list);
-            long end = System.currentTimeMillis();
-            print(list);
-            time += (end - start);
-        }
-        System.out.println("time = " + time);
-        return list;
+        ActionListener taskPerformer = new ActionListener() {
+            int count = 0;
+            long totalTime = 0;
+            long printTime = 0;
+            long time;
+            long start;
+            long end;
+            public void actionPerformed(ActionEvent e) {
+                if (count < nbStep) {
+                    System.out.println();
+                    System.out.println("Génération " + count + ": ");
+                    start = System.currentTimeMillis();
+                    nextGameBoard(list);
+                    end = System.currentTimeMillis();
+                    time = (end - start);
+                    System.out.println("Temps pour calculer la génération " + count + ": " + time + " milisecondes.");
+                    totalTime += time;
+                    start = System.currentTimeMillis();
+                    print(list);
+                    end = System.currentTimeMillis();
+                    time = (end - start);
+                    printTime += time;
+                    System.out.println("Temps pour calculer la génération " + count + ": " + time + " milisecondes.");
+                    count++;
+                } else { //if (i == nbStep){
+                    System.out.println();
+                    System.out.println("Exécution terminé.");
+                    System.out.println("Temps pour calculer " + nbStep + " générations: " + totalTime + " milisecondes.");
+                    System.out.println("Temps pour calculer " + nbStep + " affichages: " + printTime + " milisecondes.");
+                    System.out.println("Temps total: " + (printTime + totalTime) + " milisecondes.");
+                    t.stop();
+                }
+            }
+        };
+        t = new Timer(1000, taskPerformer);
+        t.start();
+        while (t.isRunning());
     }
 
-    //retourne la taille de la queue.
+    /**
+     * Renvoie une valeur indiquant le type d'évolution d'un jeu donné.
+     * @param liste Jeu dont l'on veux calculer le type d'évolution.
+     * @param max Limite de générations a calculer.
+     * @return Un entier dont la valeur est :
+     *      négative en cas de mort (-x indique une mort au bout de x générations)
+     *      comprise entre 0 et max si le jeu est périodique
+     *      comprise entre max+1 et 2*max si le jeu est périodique dont la figure a été déplacé.
+     *      égale a 2*max +1 si le type d'évolution n'a pas pu être donné dans nombre de générations imparties.
+     *      peut être utilisée comme taille maximum de la queue (en valeur absolue, et divisée par 2 dans le cas de décalage).
+     */
     private static int calculAsymptotique(LinkedList<Cell> liste, int max) {
         LinkedList<Cell> c1 = liste.clone();
         LinkedList<Cell> c2 = liste.clone();
@@ -309,11 +373,11 @@ public class Game {
         int i = 0;
         boolean first = true;
 
-        while (i<=max) {
+        while (i <= max) {
             if (c1.isEmpty()) {
                 return -i;//mort
             } else if (c2.isEmpty()) {
-                return -2*i;//mort
+                return -2 * i;//mort
             } else {
                 c1 = nextGameBoard(c1);
                 c3 = nextGameBoard(c2);
@@ -333,6 +397,12 @@ public class Game {
         return 2 * max + 1;//inconnu
     }
 
+    /**
+     * Évalue si les listes passées en paramètre sont les mêmes a une translation prêt.
+     * @param c1 Liste a comparer à c2
+     * @param c2 Liste a comparer à c1
+     * @return un tableau contenant deux entiers représentant le vecteur de translation. Renvoie {0, 0} si les listes ne sont pas identiques.
+     */
     private static int[] decale(LinkedList<Cell> c1, LinkedList<Cell> c2) {
         int[] tab = {0, 0};
         Link<Cell> m1 = c1.getHead();
@@ -355,6 +425,13 @@ public class Game {
         }
     }
 
+    /**
+     * Calcul la période entre deux générations de jeu identiques. Cette fonction ne termine que si la liste passée en paramètre est réellement périodique.
+     * @param liste Liste à partir de laquelle on veux calculer la durée de la période.
+     * @param ca Permet de sauter un certain nombre de générations afin d'entre directement dans la structure périodique.
+     * @param dec Doit valoir true si la génération sera décalée, false sinon.
+     * @return un tableau contenant en première position, la période, et en deux et troisième le vecteur de décalage.
+     */
     private static int[] periode(LinkedList<Cell> liste, int ca, boolean dec) {
         int[] tab = {0, 0, 0};
         LinkedList<Cell> c1 = liste.clone();
@@ -384,13 +461,20 @@ public class Game {
         }
     }
 
-    private static int queue(LinkedList<Cell> liste, int periode, boolean dec){
+    /**
+     * Calcul le nombre de générations avant de rentrer dans une structure périodique.
+     * @param liste Liste a partir de laquelle calculer la queue.
+     * @param periode Nombre de générations entre deux listes identiques.
+     * @param dec Doit valoir true si les générations identiques diffèrent d'une translation.
+     * @return La taille de la queue.
+     */
+    private static int queue(LinkedList<Cell> liste, int periode, boolean dec) {
         LinkedList<Cell> c1 = liste.clone();
         LinkedList<Cell> c2 = liste.clone();
         for (int i = 0; i<periode; i++){
             c2 = nextGameBoard(c2);
         }
-        int i =0;
+        int i = 0;
         if (dec){
             int[] d = decale(c1,c2);
             while (d[0] == 0 && d[1] == 0){
@@ -405,6 +489,11 @@ public class Game {
         }
     }
 
+    /**
+     * Lis un fichier .lif de version 1.05 pour utilisation par le programme.
+     * @param filename Chemin d'accès du fichier .lif.
+     * @return La liste chainée de Cell correspondant au fichier passé en paramètre.
+     */
     private static  LinkedList<Cell> loader(String filename) {
         LinkedList<Cell> liste = new LinkedList<Cell>();
         boolean lfl = false; //stand for look for letter
@@ -456,7 +545,6 @@ public class Game {
                             minus = false;
                         }
                         l = lo;
-//                        System.out.println(lo);
                     }
                 } else if(lfboc) {
                     if((char)n == '-'){
@@ -499,48 +587,97 @@ public class Game {
         return liste.sort();
     }
 
-    public static void main(String [] args) {
-        long start, end;
-        start = System.currentTimeMillis();
-        LinkedList<Cell> list = loader("C:\\Users\\Bonjour\\Documents\\Cours\\Jeu_de_la_vie\\src\\jeuDeLaVieTest\\vaisseau.lif");
-        end = System.currentTimeMillis();
-        System.out.println("load: " + (end - start));
-        start = System.currentTimeMillis();
-        print(list);
-        end = System.currentTimeMillis();
-        System.out.println("print list: " + (end - start));
-        System.out.println(list);
+    /**
+     * Programme principal.
+     * @param Args Lancer le programme avec l'option -h afin d'avoir tout les détails.
+     *             Options disponibles : -name/-h/-f/-t/-c/-cf/-ct.
+     */
+    public static void main(String [] Args) {
 
-        list = generateStep(list, 20);
-        System.out.println(list);
-//        print(list);
-
-        int max = 10;
-        int ca = calculAsymptotique(list, max);
-        if (ca<0) {
-            System.out.println("Mort au bout de " + (-ca) + " cycles.");
-        } else if (ca == 2*max+1){
-            System.out.println("Etat inconnu de la mort");
-        } else if (ca <=max){
-            System.out.println("Etat périodique au bout de " + ca + " cycles au maximum.");
-            int[] p = periode(list, ca, false);
-            System.out.println("La période est de " + p[0] + ".");
-            if(p[0]!=1) {
-                int qqueue = queue(list, p[0], false);
-                System.out.println("Il y a " + qqueue + " cycles avant la structure périodique.");
-            }
-        } else if (ca <= 2* max){
-            ca = ca-max;
-            System.out.println("Etat de decalage au bout de " + ca + " cycles au maximum.");
-            int[] p = periode(list, ca, true);
-            System.out.println("La période est de " + p[0] + " avec un décalage de " + p[1] + " lignes et " + p[2] + " colonnes.");
-            if(p[0]!=1) {
-                int qqueue = queue(list, p[0], true);
-                System.out.println("Il y a  "+ qqueue + " cycles avant la structure périodique (en décalage).");
-            }
-        } else {
-            System.out.println("wut !!!");
+        if (Args[0].equals("-name")) {
+            System.out.println("Jean-Pacôme Delmas et Romain Villebonnet");
         }
+
+        else if (Args[0].equals("-h")) {
+            System.out.println("-h : Affiche cette aide.");
+            System.out.println("-name : Affiche les noms et prénoms des auteurs.");
+            System.out.println("-s d fichier.lif : Simule des générations du jeu avec leur numéro de génération pendant d.");
+            System.out.println("-f d fichier.lif haut bas gauche droite : Comme -s, mais dans un monde fini.");
+            System.out.println("-t d fichier.lif haut bas gauche droite : Comme -f, mais dans un monde circulaire (tore).");
+            System.out.println("-c max fichier.lif : Calcule le type d'évolution du jeu sans dépasser la duréée max.");
+            System.out.println("-cf max fichier.lif haut bas gauche droite : Calcule le type d'évolution du jeu sans dépasser la durée max dans un monde fini.");
+            System.out.println("-ct max fichier.lif haut bas gauche droite : Calcule le type d'évolution du jeu sans dépasser la durée max dans un tore.");
+            System.out.println("(Pas implémenté) -w max dossier : Comme -c, mais pour tout les fichiers du dossier, les résultats sont sortis sous la forme d'un fichier HTML.");
+        }
+
+        else if (Args[0].equals("-s") || Args[0].equals("-f") || Args[0].equals("-t")) {
+            if (Args[0].equals("-t")) {
+                circular = true;
+            } else {
+                circular = false;
+            }
+            if (Args[0].equals("-s")) {
+                topTerminal = 0;
+                lowTerminal = 0;
+                leftTerminal = 0;
+                rightTerminal = 0;
+            } else {
+                topTerminal = Integer.parseInt(Args[3]);
+                lowTerminal = Integer.parseInt(Args[4]);
+                leftTerminal = Integer.parseInt(Args[5]);
+                rightTerminal = Integer.parseInt(Args[6]);
+            }
+            int d = Integer.parseInt(Args[1]);
+            LinkedList<Cell> list = loader(Args[2]);
+            generateStep(list, d);
+        }
+
+        else if (Args[0].equals("-c") || Args[0].equals("-cf") || Args[0].equals("-ct")) {
+            if (Args[0].equals("-ct")) {
+                circular = true;
+            } else {
+                circular = false;
+            }
+            if (Args[0].equals("-c")) {
+                topTerminal = 0;
+                lowTerminal = 0;
+                leftTerminal = 0;
+                rightTerminal = 0;
+            } else {
+                topTerminal = Integer.parseInt(Args[3]);
+                lowTerminal = Integer.parseInt(Args[4]);
+                leftTerminal = Integer.parseInt(Args[5]);
+                rightTerminal = Integer.parseInt(Args[6]);
+            }
+            int max = Integer.parseInt(Args[1]);
+            LinkedList<Cell> list = loader(Args[2]);
+            int ca = calculAsymptotique(list.clone(), max);
+            if (ca < 0) {
+                System.out.println("Mort au bout de " + (-ca) + " cycles.");
+            } else if (ca == 2 * max + 1) {
+                System.out.println("Etat inconnu.");
+            } else if (ca <= max) {
+                System.out.println("Etat périodique au bout de " + ca + " cycles au maximum. (re-spécifié si différent)");
+                int[] p = periode(list.clone(), ca, false);
+                System.out.println("La période est de " + p[0] + ".");
+                if(p[0] != 1) {
+                    int qqueue = queue(list.clone(), p[0], false);
+                    System.out.println("Il y a " + qqueue + " cycles avant la structure périodique.");
+                }
+            } else if (ca <= 2 * max) {
+                ca = ca - max;
+                System.out.println("Etat de decalage au bout de " + ca + " cycles au maximum.");
+                int[] p = periode(list.clone(), ca, true);
+                System.out.println("La période est de " + p[0] + " avec un décalage de " + p[1] + " lignes et " + p[2] + " colonnes.");
+                if(p[0] != 1) {
+                    int qqueue = queue(list.clone(), p[0], true);
+                    System.out.println("Il y a  "+ qqueue + " cycles avant la structure périodique (en décalage).");
+                }
+            } else {
+                System.out.println("Une erreur c'est produite.");
+            }
+        }
+
     }
 
 }
